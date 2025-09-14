@@ -1,12 +1,58 @@
-# Ignorar configurações da IDE
-.idea/
+# =========================
+# Ignorar pasta de dados sensíveis
+# =========================
+data/
 
-# Ignorar arquivos compilados
-out/
+# =========================
+# Arquivos e pastas de build
+# =========================
+/target/
+/out/
+/build/
+/bin/
 
-# Ignorar arquivos temporários do sistema
+# =========================
+# Arquivos temporários do sistema
+# =========================
 *.log
 *.tmp
+*.temp
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
 
-# Ignorar arquivos de build do Java
-*.class
+# =========================
+# Arquivos de IDEs
+# =========================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# =========================
+# Arquivos de dependências locais
+# =========================
+/lib/
+
+# =========================
+# Arquivos de cache
+# =========================
+/.gradle/
+/mvnw.cmd
+/mvnw
