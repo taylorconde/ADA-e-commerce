@@ -6,7 +6,6 @@ import src.main.java.br.com.tech.ecommerce.domain.model.Cliente;
 import src.main.java.br.com.tech.ecommerce.domain.model.ItemPedido;
 import src.main.java.br.com.tech.ecommerce.domain.model.Pedido;
 import src.main.java.br.com.tech.ecommerce.domain.model.Produto;
-import src.main.java.br.com.tech.ecommerce.domain.model.enums.StatusPedido;
 import src.main.java.br.com.tech.ecommerce.domain.repository.ClienteRepositorio;
 import src.main.java.br.com.tech.ecommerce.domain.repository.PedidoRepositorio;
 import src.main.java.br.com.tech.ecommerce.domain.repository.ProdutoRepositorio;
@@ -14,6 +13,7 @@ import src.main.java.br.com.tech.ecommerce.domain.service.NotificacaoServico;
 import src.main.java.br.com.tech.ecommerce.domain.service.PedidoServico;
 
 import java.math.BigDecimal;
+import java.util.function.Consumer;
 
 public class PedidoAppService {
 
@@ -35,23 +35,26 @@ public class PedidoAppService {
         this.notificacaoServico = notificacaoServico;
     }
 
-    public Pedido criarPedido(String clienteId) {
+    public void criarPedido(String clienteId) {
         Cliente cliente = clienteRepositorio.buscarPorId(clienteId)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+
         Pedido pedido = PedidoFactory.criar(cliente);
         pedidoRepositorio.salvar(pedido);
-        return pedido;
+
+        notificacaoServico.enviarNotificacao(cliente,
+                "Seu pedido " + pedido.getId() + " foi criado com sucesso!");
     }
 
     public void adicionarItem(String pedidoId, String produtoId, int quantidade, BigDecimal precoUnitario) {
         Pedido pedido = buscarPedidoOuErro(pedidoId);
-        if (pedido.getStatusPedido() != StatusPedido.ABERTO) {
-            throw new IllegalStateException("Só é possível adicionar itens em pedidos ABERTOS");
-        }
+
         Produto produto = produtoRepositorio.buscarPorId(produtoId)
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+
         ItemPedido item = ItemPedidoFactory.criar(produto, quantidade, precoUnitario);
         pedidoServico.adicionarItem(pedido, item);
+
         pedidoRepositorio.salvar(pedido);
     }
 
@@ -73,37 +76,40 @@ public class PedidoAppService {
     }
 
     public void finalizarPedido(String pedidoId) {
-        Pedido pedido = buscarPedidoOuErro(pedidoId);
-        pedidoServico.finalizarPedido(pedido);
-        pedidoRepositorio.salvar(pedido);
-        notificacaoServico.enviarNotificacao(
-                pedido.getCliente(),
-                "Seu pedido " + pedido.getId() + " foi finalizado e está aguardando pagamento."
+        atualizarPedidoEEnviarNotificacao(
+                pedidoId,
+                pedidoServico::finalizarPedido,
+                "Seu pedido foi finalizado e está aguardando pagamento."
         );
     }
 
     public void pagarPedido(String pedidoId) {
-        Pedido pedido = buscarPedidoOuErro(pedidoId);
-        pedidoServico.pagar(pedido);
-        pedidoRepositorio.salvar(pedido);
-        notificacaoServico.enviarNotificacao(
-                pedido.getCliente(),
-                "Pagamento do pedido " + pedido.getId() + " confirmado!"
+        atualizarPedidoEEnviarNotificacao(
+                pedidoId,
+                pedidoServico::pagar,
+                "Pagamento do pedido confirmado!"
         );
     }
 
     public void entregarPedido(String pedidoId) {
-        Pedido pedido = buscarPedidoOuErro(pedidoId);
-        pedidoServico.entregar(pedido);
-        pedidoRepositorio.salvar(pedido);
-        notificacaoServico.enviarNotificacao(
-                pedido.getCliente(),
-                "Seu pedido " + pedido.getId() + " foi entregue. Status: Finalizado."
+        atualizarPedidoEEnviarNotificacao(
+                pedidoId,
+                pedidoServico::entregar,
+                "Seu pedido foi entregue. Status: Finalizado."
         );
     }
 
     private Pedido buscarPedidoOuErro(String pedidoId) {
         return pedidoRepositorio.buscarPorId(pedidoId)
                 .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+    }
+
+    private void atualizarPedidoEEnviarNotificacao(String pedidoId,
+                                                   Consumer<Pedido> acaoDominio,
+                                                   String mensagemNotificacao) {
+        Pedido pedido = buscarPedidoOuErro(pedidoId);
+        acaoDominio.accept(pedido);
+        pedidoRepositorio.salvar(pedido);
+        notificacaoServico.enviarNotificacao(pedido.getCliente(), mensagemNotificacao);
     }
 }
