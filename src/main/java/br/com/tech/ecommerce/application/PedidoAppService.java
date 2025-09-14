@@ -6,6 +6,7 @@ import src.main.java.br.com.tech.ecommerce.domain.model.Cliente;
 import src.main.java.br.com.tech.ecommerce.domain.model.ItemPedido;
 import src.main.java.br.com.tech.ecommerce.domain.model.Pedido;
 import src.main.java.br.com.tech.ecommerce.domain.model.Produto;
+import src.main.java.br.com.tech.ecommerce.domain.model.enums.StatusPedido;
 import src.main.java.br.com.tech.ecommerce.domain.repository.ClienteRepositorio;
 import src.main.java.br.com.tech.ecommerce.domain.repository.PedidoRepositorio;
 import src.main.java.br.com.tech.ecommerce.domain.repository.ProdutoRepositorio;
@@ -35,15 +36,14 @@ public class PedidoAppService {
         this.notificacaoServico = notificacaoServico;
     }
 
-    public void criarPedido(String clienteId) {
+    public String criarPedido(String clienteId) {
         Cliente cliente = clienteRepositorio.buscarPorId(clienteId)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
         Pedido pedido = PedidoFactory.criar(cliente);
         pedidoRepositorio.salvar(pedido);
 
-        notificacaoServico.enviarNotificacao(cliente,
-                "Seu pedido " + pedido.getId() + " foi criado com sucesso!");
+        return pedido.getId();
     }
 
     public void adicionarItem(String pedidoId, String produtoId, int quantidade, BigDecimal precoUnitario) {
@@ -73,6 +73,13 @@ public class PedidoAppService {
     public BigDecimal calcularValorTotal(String pedidoId) {
         Pedido pedido = buscarPedidoOuErro(pedidoId);
         return pedidoServico.calcularValorTotal(pedido);
+    }
+
+    public void cancelarPedido(String pedidoId) {
+        Pedido pedido = pedidoRepositorio.buscarPorId(pedidoId)
+                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+        pedido.setStatusPedido(StatusPedido.CANCELADO);
+        pedidoRepositorio.salvar(pedido);
     }
 
     public void finalizarPedido(String pedidoId) {
