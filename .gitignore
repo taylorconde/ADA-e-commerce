@@ -1,0 +1,12 @@
+# Ignorar configurações da IDE
+.idea/
+
+# Ignorar arquivos compilados
+out/
+
+# Ignorar arquivos temporários do sistema
+*.log
+*.tmp
+
+# Ignorar arquivos de build do Java
+*.class
