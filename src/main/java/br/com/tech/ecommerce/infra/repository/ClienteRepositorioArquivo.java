@@ -33,6 +33,6 @@ public class ClienteRepositorioArquivo implements ClienteRepositorio {
 
     @Override
     public List<Cliente> listarTodos() {
-        return ArquivoUtil.lerListaDeArquivo(arquivo);
+        return List.copyOf(ArquivoUtil.lerListaDeArquivo(arquivo));
     }
 }

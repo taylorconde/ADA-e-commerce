@@ -72,7 +72,7 @@ public class PedidoServico {
         Objects.requireNonNull(pedido, "Pedido não pode ser nulo");
         if (pedido.getStatusPagamento() != StatusPagamento.AGUARDANDO
                 || pedido.getStatusPedido() != StatusPedido.AGUARDANDO_PAGAMENTO) {
-            throw new IllegalStateException("Pagamento só pode ocorrer quando status é AGUARDANDO PAGAMENTO");
+            throw new IllegalStateException("FINALIZE o pedido antes");
         }
         pedido.setStatusPagamento(StatusPagamento.PAGO);
         pedido.setStatusPedido(StatusPedido.PAGO);
