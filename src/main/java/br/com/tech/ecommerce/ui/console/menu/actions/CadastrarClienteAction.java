@@ -6,6 +6,7 @@ import src.main.java.br.com.tech.ecommerce.domain.validator.DocumentoCPFValidato
 import src.main.java.br.com.tech.ecommerce.domain.validator.DocumentoCNPJValidator;
 import src.main.java.br.com.tech.ecommerce.domain.validator.NomeValidator;
 import src.main.java.br.com.tech.ecommerce.domain.validator.TipoDocumentoValidator;
+import src.main.java.br.com.tech.ecommerce.domain.validator.EmailValidator;
 import src.main.java.br.com.tech.ecommerce.ui.console.menu.MenuAction;
 
 import java.util.Scanner;
@@ -55,9 +56,14 @@ public class CadastrarClienteAction implements MenuAction {
             System.out.println("❌ Nome inválido. Digite um nome válido.");
         }
 
-        // 4. Email (opcional, mas pode ser validado futuramente)
-        System.out.print("Email: ");
-        String email = sc.nextLine().trim();
+        // 4. Email
+        String email;
+        while (true) {
+            System.out.print("Email: ");
+            email = sc.nextLine().trim();
+            if (EmailValidator.isValido(email)) break;
+            System.out.println("❌ Email inválido. Digite novamente.");
+        }
 
         // Cadastro
         clienteAppService.cadastrar(nome, documento, tipoDocumento, email);
