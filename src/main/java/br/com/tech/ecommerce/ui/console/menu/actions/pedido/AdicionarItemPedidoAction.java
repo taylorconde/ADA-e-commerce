@@ -37,7 +37,7 @@ public class AdicionarItemPedidoAction implements MenuAction {
         System.out.println("\n--- Produtos Disponíveis ---");
         for (int i = 0; i < produtos.size(); i++) {
             Produto p = produtos.get(i);
-            System.out.println((i + 1) + " - " + p.getNome() + " | " + EcommerceConsoleApp.formatMoney(p.getPrecoBase()));
+            System.out.println((i + 1) + " - " + p.getNome() + " | " + EcommerceConsoleApp.formatMoney(p.getPrecoBase()) + " | " + p.isAtivo());
         }
 
         int escolha = -1;

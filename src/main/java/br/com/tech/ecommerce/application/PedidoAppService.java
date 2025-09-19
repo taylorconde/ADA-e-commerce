@@ -52,6 +52,10 @@ public class PedidoAppService {
         Produto produto = produtoRepositorio.buscarPorId(produtoId)
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
 
+        if (!produto.isAtivo()) {
+            throw new IllegalArgumentException("Produto inativo não pode ser adicionado ao pedido");
+        }
+
         ItemPedido item = ItemPedidoFactory.criar(produto, quantidade, precoUnitario);
         pedidoServico.adicionarItem(pedido, item);
 
